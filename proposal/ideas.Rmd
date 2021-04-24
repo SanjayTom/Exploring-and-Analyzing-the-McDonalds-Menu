@@ -4,8 +4,27 @@ output: html_notebook
 ---
 
 ## Section 1. Introduction
+Mcdonalds is the biggest fast food chain in the world and had a multitude of different items on its menu. All of these menu items come with a multitude of caloric information that should be better conveyed to the average consumer of such products.
 
+- Which food category will you the most Cholesterol at Mcdonalds if you order from it?
+
+- Is their a difference between ordering egg whites instead of a whole egg?
+
+- Does a grilled chicken sandwich really add to the nutritional value?
 ## Section 2. Data Analysis Plan
+These are the question that we will try to answer using the data from the dataset.
+
+- Which food category will you the most Cholesterol at Mcdonalds if you order from it?
+
+- Is their a difference between ordering egg whites instead of a whole egg?
+
+- Does a grilled chicken sandwich really add to the nutritional value?
+
+- What category will give you the most Cholesterol at Mcdonalds if you order from it?
+
+- Is their a relationship between the amount of Sugar and Calories when looking at just the Saturated Fat Value.
 
 ## Section 3. Data
-
+```{r}
+Mac <- read.csv('https://raw.githubusercontent.com/reisanar/datasets/master/macmenu.csv')
+```
