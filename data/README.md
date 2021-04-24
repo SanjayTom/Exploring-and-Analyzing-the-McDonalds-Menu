@@ -19,6 +19,8 @@ ggplot(Mac,aes(y=category,))+
     y = "Food Category"
   )
 ```
+![image](https://user-images.githubusercontent.com/43821977/115941512-ab799b80-a473-11eb-9d9d-037a3bfd1c13.png)
+
 
 The visualization below helps to depict the distribution calories throughout the menu based on the varying Menu Categories. 
 ```{r}
@@ -37,3 +39,5 @@ Mac %>%
   geom_text(aes(8, mean_cal, label=str_c("Menu Average = ", as.character(mean_cal)), vjust = -0.5),color = "red") +
   theme(axis.text.x = element_text(angle = 90, size = 10),
         axis.text.y = element_text(size = 8))
+```
+![image](https://user-images.githubusercontent.com/43821977/115941538-b92f2100-a473-11eb-9855-5f4fd076d1e9.png)
