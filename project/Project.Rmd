@@ -1,0 +1,288 @@
+---
+title: "Exploring and Analyzing the Mcdonalds Menu"
+author: "Sanjay Tomlinson"
+date: "4/21/2021"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+
+---
+## Team member 
+
+**Sanjay Tomlinson** <br> [Email](mailto:stomlinson7258@floridapoly.edu) 
+
+# Introduction
+Mcdonalds is the biggest fast food chain in the world and had a multitude of different items on its menu. All of these menu items come with a multitude of caloric information that should be better conveyed to the average consumer of such products.
+
+- Which food category will you the most Cholesterol at Mcdonalds if you order from it?
+
+- Is their a difference between ordering egg whites instead of a whole egg?
+
+- Does a grilled chicken sandwich really add to the nutritional value?
+
+**Well folks this data analysis is here to ask these pressing questions!**
+
+# Prerequisites
+
+Loading the required packages
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(scales)
+library(janitor)
+library(corrplot)
+library(ggthemes)
+library(pander)
+library(reshape2)
+library(sqldf)
+library(ggrepel)
+library(gridExtra)
+
+```
+
+
+# Dataset
+
+```{r}
+Mac <- read.csv('https://raw.githubusercontent.com/reisanar/datasets/master/macmenu.csv')
+```
+
+Get a sample of the dataset for easy testing. The final report was run all the full Mcdonalds menu dataset. 
+```{r}
+#set seed value to the opening of Florida Polytechnic Universe
+set.seed(20130420)
+
+#set percentage to test with for simplicity, if needed
+percentage <- 5
+Mac_smaple<- sample_n(Mac, percentage/100*nrow(Mac))
+```
+
+Before, we can conduct any detailed analysis of our dataset, we must look at a quick summary of the dataset.
+```{r}
+summary(Mac)
+```
+## Data Cleaning 
+We need to dome some cleaning up of the provided dataset to get a clearer picture and also for a smoother analysis.
+
+```{r}
+# convert spaces in column names into _
+Mac <- clean_names(Mac)
+
+names(Mac)
+
+
+# check if any column contains the value of 0
+sum(is.na(Mac))  
+
+
+glimpse(Mac)
+```
+
+# Data Exploration 
+
+## Univariate Exploration
+To better understand the distribution of our data, we did some simple univariate visualization based on specific fields. Additionally, before doing a multivariate analysis and answering our research questions, we first want to ensure our dataset is robust and an accurate representation of the real world.
+
+### Distribution of Menu Items 
+The visualization below gives us a better look at what foods mcdonalds actually provides and the amount of items per category.To better understand and visualize the data, we categorized the graph based on `Food_Category`.
+
+```{r}
+ggplot(Mac,aes(y=category,))+
+  geom_bar(colour="Black",fill="Blue",)+
+  labs(
+     coord_flip(),
+    title ="Mcdonalds Item Menu Category?",
+    x ="Menu Item Amount Per Category",
+    y = "Food Category"
+  )
+```
+
+### Calories
+The visualization below helps to depict the distribution calories throughout the menu based on the varying Menu Categories. 
+```{r}
+mean_cal = round(mean(Mac$calories),2) # average calories in the whole menu 
+
+options(repr.plot.width = 14, repr.plot.height = 14)
+Mac %>%
+  group_by(category) %>%
+  summarize(mean_cat_cal = round(mean(calories), 2)) %>%
+  ggplot(aes(fct_rev(fct_reorder(category, mean_cat_cal)), mean_cat_cal)) +
+  geom_col(fill = "blue") +
+  geom_hline(yintercept = mean_cal, linetype = "dashed")+
+  ggtitle("Average Calories in Each Category") +
+  labs(y= "Averageg Calories", x = "Category") +
+  geom_text(aes(label=mean_cat_cal), vjust = -0.5) +
+  geom_text(aes(8, mean_cal, label=str_c("Menu Average = ", as.character(mean_cal)), vjust = -0.5),color = "red") +
+  theme(axis.text.x = element_text(angle = 90, size = 10),
+        axis.text.y = element_text(size = 8))
+```
+
+### Calories For Chicken & Fish
+The visualization below helps to depict the distribution of  calories throughout the menu based on the Chicken & Fish Category.
+```{r}
+ggplot(subset(Mac,category=="Chicken & Fish"), aes(reorder(item,calories),calories,fill=calories)) + geom_bar(stat = "identity")  + theme(legend.position = "none")+ggtitle("Chicken & Fish Menu Vs Calories") + xlab("Item") + ylab("Calories")  + coord_flip()
+```
+
+### Amount of Sodium Per Food Category
+The visualization below helps to depict the distribution of sodium throughout the different food categories provided by the dataset.
+```{r}
+options(repr.plot.width = 10, repr.plot.height = 5)
+ggplot(Mac, aes(x = sodium, y=category)) +
+geom_point(aes(color = ifelse(sodium >= max(sodium),"Max","Less")))+
+scale_color_manual(values = c('blue', 'yellow'))+
+labs(color = "Max Sodium", y = "Sodium Content", title = "Percentage of Sodium Per Category - McD") +
+theme_classic()+
+theme(text = element_text(size=15))
+```
+
+## Multivariate Exploration
+Now that we have a better understanding of our data, and we know it is an accurate representation of the real world, we can perform a more detailed analysis using multiple variables.
+
+### Daily Value Percentge by Food Category
+To get a better understanding of how each menu category affects the daily value of carbohydrates we did a multivariate visualization. This gives us an idea of how the food categories correlate to the % daily value of carbs.
+```{r}
+df.m <- melt(Mac[,c(1,12,14,16)], id.var = "category")
+
+
+p <- ggplot(data = df.m, aes(x=variable, y=value)) + 
+  geom_boxplot(aes(fill=category))
+p + guides(fill=guide_legend(title="Category"))+coord_flip()+xlab('% Daily Value')+ylab('Nutrition facts')+
+geom_hline(yintercept=100,linetype="dashed", color = "red")+ylim(0,250)
+```
+
+
+### Carbohydrates Daily value
+
+```{r}
+qplot(calories, carbohydrates_daily_value
+, data=Mac, color=category,facets=~category, size=I(1),
+   xlab="Calories", ylab="Carbohydrates....DailyValue") 
+```
+
+### Sodium Outlier
+
+To go more in-depth with the Sodium data we did checked to see if the Sodium vlaue had outliers.
+```{r}
+Sodium_1 <- melt(Mac,id.vars='sodium', measure.vars=c("sodium","sodium_daily_value"))
+
+Sodium_Outlier <- ggplot(Sodium_1) +geom_boxplot(outlier.colour = "dark blue",aes(y=sodium,x=factor(0),color=variable))+theme_classic()+labs(title="Sodium")
+
+grid.arrange(Sodium_Outlier)
+```
+
+# Daily Analysis
+
+## What category will give you the most Cholesterol at Mcdonalds if you order from it?
+```{r}
+options(repr.plot.width = 5, repr.plot.height = 5)
+ggplot(Mac,aes(x = reorder(category,cholesterol_daily_value), y = cholesterol_daily_value)) +
+  geom_line(fill='lightblue', color="blue") +theme_classic()+
+  coord_flip() + theme(text = element_text(size=15))
+```
+
+## Table giving a clearer view on the above answered question
+```{r}
+max_Chol= Mac %>% group_by(category) %>% summarise(Chol.Level = max(cholesterol_daily_value)) %>% arrange(desc(Chol.Level))
+max_Chol
+```
+
+
+## Is their a difference between ordering egg whites instead of a whole egg?
+```{r}
+Eggs_Mac = Mac %>% 
+  filter(str_detect(str_to_lower(item), "egg")) %>%
+  mutate(Type = case_when(str_detect(str_to_lower(item), "white") ~ "Eggs Whites",
+                          TRUE ~ "Whole Eggs"),
+         Type = as.factor(Type))
+# now let's compare Eggs Whites vs Whole Eggs with Calories
+options(repr.plot.width = 14, repr.plot.height = 14)
+ggplot(Eggs_Mac, aes(x = Type, y = calories, fill = Type)) +
+  geom_boxplot()+
+theme(axis.text.x = element_text(size = 15),
+        axis.text.y = element_text(size = 15))+
+ggtitle("Comparison between Whole Eggs vs Eggs Whites with Calories")
+#Comparison Egg White vs Whole egg with Cholestrol
+options(repr.plot.width = 14, repr.plot.height = 14)
+ggplot(Eggs_Mac, aes(x = Type, y = cholesterol, fill = Type)) +
+  geom_boxplot()+
+theme(axis.text.x = element_text(size = 15),
+        axis.text.y = element_text(size = 15))+
+ggtitle("Comparison between Whole Eggs vs Eggs Whites with Cholesterol")
+# now let's compare Eggs Whites vs Whole Eggs with Protein
+options(repr.plot.width = 14, repr.plot.height = 14)
+ggplot(Eggs_Mac, aes(x = Type, y = protein, fill = Type)) +
+  geom_boxplot()+
+theme(axis.text.x = element_text(size = 15),
+        axis.text.y = element_text(size = 15))+
+ggtitle("Comparison between Whole Eggs vs Eggs Whites with Protein")
+```
+
+
+## Does a grilled chicken sandwhich really add to the nutritional value?
+```{r}
+Chicken_menu = Mac %>%
+                  filter(category == "Chicken & Fish", item != "Filet-O-Fish") 
+
+# now let's add a column which tells if the chicken is grilled or not
+Chicken_menu = Chicken_menu %>%
+                  mutate(type = case_when(str_detect(item, "Grilled") == 1 ~ "Grilled",
+                                             TRUE ~ "Crispy"),
+                         type = as.factor(type))
+# now let's compare Grilled vs Crispy chicken with Calories
+options(repr.plot.width = 14, repr.plot.height = 14)
+ggplot(Chicken_menu, aes(x = type, y = calories, fill = type)) +
+  geom_boxplot()+
+  theme(axis.text.x = element_text(size = 15),
+        axis.text.y = element_text(size = 15))+
+ggtitle("Comparison between Grilled vs Crispy Chicken with Calories")
+```
+## Now let's compare Grilled vs Crispy chicken with Protein
+```{r}
+options(repr.plot.width = 14, repr.plot.height = 14)
+ggplot(Chicken_menu, aes(x = type, y = protein, fill = type)) +
+  geom_boxplot() +
+theme(axis.text.x = element_text(size = 15),
+        axis.text.y = element_text(size = 15))+
+ggtitle("Comparison between Grilled vs Crispy Chicken witht Protein")
+```
+
+
+## Is their a relationship between the amount of Sugar and Calories when looking at just the Saturated Fat Value.
+
+```{r}
+sugar <- Mac %>%
+  arrange(desc(sugars)) %>% head(n = 20) 
+
+ggplot(sugar, aes(x= reorder(item, sugars), y=sugars, fill=category)) +
+  geom_bar(stat="identity") +
+  coord_flip() +
+  labs(title = "Sugar Top 20", fill = "Category") +
+  xlab("") +
+  ylab("Sugar")
+```
+
+```{r}
+ggplot(sugar, aes(x=sugars, y=calories, color=as.character(category))) +
+  geom_point(aes(size=saturated_fat_daily_value
+))+
+  geom_label_repel(aes(label=ifelse(saturated_fat_daily_value
+>90, as.character(item), ""))) +
+  labs(title = "Relation between Calories, Sugar and Saturated Fat", color= "Category",size = "Saturated Fat Daily Value" ) +
+  xlab("Sugar") +
+  ylab("Calories")
+```
+
+# Conclusion
+After all this exploration we were able to walk always some insights regarding the Mcdonalds Menu Nutrition dataset.We learned that the best menu category to avoid at Mcdonalds if you don't want high cholesterol would be the breakfast menu, the relationship between the amount of the amount of Sugar and Calories when looking at just the Saturated Fat Value, and difference between ordering egg whites instead of a whole egg which has egg whits having far more protein and less average cholesterol than whole eggs.We were able to apply data manipulation and exploration skills such as filtering, mutating, arranging, grepping, and slicing data.Also, we learned the importance of data preprocessing, the power of mindful graphics, how to make every ggplot easy to understand for the reader using color.We feel this report gives a well-rounded display of the tools we were taught throughout the semester, and we were excited to build from that knowledge and integrate other tools as well.
+
+# Future Works
+There is undoubtedly more exploration to be done within this dataset. If we integrated some more data packages with information about mcdonalds store growth around the country and a dataset exploring obesity over a 10 year period we could create a correlation between the two. We could also take the data that we found, build statistical models such a random forest to predict how bad certain new menu items would be for the body based on metric such as cholesterol, Sodium Daily Value, Sugar Daily Value, etc. This could help Mcdonalds to create a more health conscious image y removing or editing new meals that they would add to the menu.Overall, creativity is the only limitation on what other problems we could solve with this dataset.
+
+# Datasets Cited
+I would like thank Dr.Sanchez for providing the Mcondalds Nutrition Menu dataset which I renamed Mac for this analysis.
+
+That data we used is available at:
+https://raw.githubusercontent.com/reisanar/datasets/master/macmenu.csv
+
