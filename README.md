@@ -4,13 +4,10 @@
 
 Team members: 
 
-- Student 1 [Rei](mailto:rsanchezarias@floridapoly.edu)
-
-- Student 2 [Student 2](mailto:student2@floridapoly.edu)
-
-- Student 3 [Student 3](mailto:student3@floridapoly.edu)
+- Sanjay Tomlinson [Email](mailto:rsanchezarias@floridapoly.edu)
 
 
-Our project investigates the main characteristics of popular movies in recent years.
+
+Our project investigates the nutrional values of the items on the Mcdonalds Menu .
 We will be using the data available at: 
-<https://github.com/reisanar/datasets/blob/master/IMDB_movies.csv> 
+<https://raw.githubusercontent.com/reisanar/datasets/master/macmenu.csv> 
