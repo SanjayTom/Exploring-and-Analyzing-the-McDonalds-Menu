@@ -6,6 +6,8 @@ output: html_notebook
 This is where the final project report write-up goes. 
 
 
-Before you submit, make sure everything runs as expected.
+# Conclusion
+After all this exploration we were able to walk always some insights regarding the Mcdonalds Menu Nutrition dataset.We learned that the best menu category to avoid at Mcdonalds if you don't want high cholesterol would be the breakfast menu, the relationship between the amount of the amount of Sugar and Calories when looking at just the Saturated Fat Value, and difference between ordering egg whites instead of a whole egg which has egg whits having far more protein and less average cholesterol than whole eggs.We were able to apply data manipulation and exploration skills such as filtering, mutating, arranging, grepping, and slicing data.Also, we learned the importance of data preprocessing, the power of mindful graphics, how to make every ggplot easy to understand for the reader using color.We feel this report gives a well-rounded display of the tools we were taught throughout the semester, and we were excited to build from that knowledge and integrate other tools as well.
 
-You can add sections as you see fit. Make sure you have a section called "Introduction" at the beginning and a section called "Conclusion" at the end. The rest is up to you!
+# Future Works
+There is undoubtedly more exploration to be done within this dataset. If we integrated some more data packages with information about mcdonalds store growth around the country and a dataset exploring obesity over a 10 year period we could create a correlation between the two. We could also take the data that we found, build statistical models such a random forest to predict how bad certain new menu items would be for the body based on metric such as cholesterol, Sodium Daily Value, Sugar Daily Value, etc. This could help Mcdonalds to create a more health conscious image y removing or editing new meals that they would add to the menu.Overall, creativity is the only limitation on what other problems we could solve with this dataset.
