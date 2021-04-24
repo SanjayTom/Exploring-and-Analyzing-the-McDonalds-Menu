@@ -4,7 +4,7 @@
 
 Team members: 
 
-- Sanjay Tomlinson [Email](mailto:rsanchezarias@floridapoly.edu)
+- Sanjay Tomlinson [Email](mailto:stomlinson7258@floridapoly.edu)
 
 
 
